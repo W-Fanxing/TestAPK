@@ -27,20 +27,15 @@ public class MainActivity extends Activity {
         Button btnOneShot = findViewById(R.id.btn_one_shot);
         btnOneShot.setOnClickListener(v -> {
             Log.i(TAG, "click FLAG_ONE_SHOT button");
-            if (pendingIntent != null) {
-                int flags = PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE;
-                pendingIntent = PendingIntent.getActivity(
-                        this, 1234, intent, flags
-                );
-            } else {
-                int flags = PendingIntent.FLAG_UPDATE_CURRENT;    // 非空，复用
-                pendingIntent = PendingIntent.getActivity(
-                        this, 1234, intent, flags
-                );
-            }
+            int flags = PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE;
+            pendingIntent = PendingIntent.getActivity(
+                    this, 1234, intent, flags
+            );
             try {
+                pendingIntent.send();  // FLAG_ONE_SHOT的intent只能用一次，发送之后pendingIntent=null
+                Log.i(TAG, "Succeed to send intent_FLAG_ONE_SHOT");  // 打印
                 pendingIntent.send();
-                Log.i(TAG, "Succeed to send intent_FLAG_ONE_SHOT");
+                Log.i(TAG, "Succeed to send intent_FLAG_ONE_SHOT");  // 不打印
             } catch (PendingIntent.CanceledException e) {
                 Log.i(TAG, "Failed to send intent_FLAG_ONE_SHOT", e);
             }
