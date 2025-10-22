@@ -39,10 +39,8 @@ public class MainActivity extends Activity {
             try {
                 pendingIntent.send();
                 Log.i(TAG, "Succeed to send intent_FLAG_ONE_SHOT");
-                Toast.makeText(this, "发送成功", Toast.LENGTH_SHORT).show();
             } catch (PendingIntent.CanceledException e) {
                 Log.i(TAG, "Failed to send intent_FLAG_ONE_SHOT", e);
-                Toast.makeText(this, "发送失败（已取消）", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -52,16 +50,13 @@ public class MainActivity extends Activity {
             int flags = PendingIntent.FLAG_UPDATE_CURRENT;
             pendingIntent = PendingIntent.getActivity(this, 6789, intent, flags);
             if (pendingIntent != null) {
-                // 第一步：取消 PendingIntent（设置 canceled 状态为 true）
-                pendingIntent.cancel();
-                Log.d(TAG, "已调用 cancel() 取消 PendingIntent");
-
-                // 第二步：尝试发送已取消的 PendingIntent
+                pendingIntent.cancel();   // 第一步：取消 PendingIntent（设置 canceled 状态为 true）
+                Log.i(TAG, "已调用 cancel() 取消 PendingIntent");
                 try {
-                    pendingIntent.send();
-                    Log.d(TAG, "发送成功（不符合预期）");
+                    pendingIntent.send();  // 第二步：尝试发送已取消的 PendingIntent
+                    Log.i(TAG, "Succeed to send intent_Canceled（不符合预期）");
                 } catch (PendingIntent.CanceledException e) {
-                    Log.e(TAG, "发送失败：PendingIntent 已取消（符合预期）", e);
+                    Log.e(TAG, "Failed to send intent_Canceled（符合预期）", e);
                 }
             }
         });
@@ -103,14 +98,11 @@ public class MainActivity extends Activity {
                     this, 12345, intent, flags
             );
             if (pendingIntent != null) {
-                // 主动取消 PendingIntent（这会触发系统的 cancel 逻辑）
-                pendingIntent.cancel();
-                Toast.makeText(MainActivity.this, "已取消 PendingIntent", Toast.LENGTH_SHORT).show();
-                // 取消后可以置空，避免重复取消
-                // pendingIntent = null;
-                // pendingIntent = PendingIntent.getActivity(this, 12345, intent, flags);
+                pendingIntent.cancel();   // 主动取消 PendingIntent（这会触发系统的 cancel 逻辑）
+                Log.i(TAG, "Canceled sending intent");
+                pendingIntent = null;     // 取消后可以置空，避免重复取消
             } else {
-                Toast.makeText(MainActivity.this, "PendingIntent 已被取消", Toast.LENGTH_SHORT).show();
+                Log.i(TAG, "Canceled sending pendingIntent==null");
             }
         });
     }
