@@ -42,6 +42,3 @@ PS：使用Token进行推送
     git push -u origin main
     # 或者直接使用token在URL中
     git remote set-url origin https://<token>@github.com/W-Fanxing/TestAPK.git
-
-10.22+ 30天内的token
-token_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
