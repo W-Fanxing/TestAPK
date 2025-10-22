@@ -29,7 +29,7 @@ public class MainActivity extends Activity {
             Log.i(TAG, "click FLAG_ONE_SHOT button");
             int flags = PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE; // 使用 FLAG_UPDATE_CURRENT 方便复用
             pendingIntent = PendingIntent.getActivity(
-                    this, 12345, intent, flags
+                    this, 1234, intent, flags
             );
             if (pendingIntent == null) {
                 Toast.makeText(this, "PendingIntent 为空", Toast.LENGTH_SHORT).show();
@@ -47,7 +47,7 @@ public class MainActivity extends Activity {
         // 2. 创建 PendingIntent，先取消，再发送
         Button triggerButton = findViewById(R.id.btn_trigger);
         triggerButton.setOnClickListener(v -> {
-            int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+            int flags = PendingIntent.FLAG_IMMUTABLE;
             pendingIntent = PendingIntent.getActivity(this, 6789, intent, flags);
             if (pendingIntent != null) {
                 pendingIntent.cancel();   // 第一步：取消 PendingIntent（设置 canceled 状态为 true）
