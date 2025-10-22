@@ -27,14 +27,16 @@ public class MainActivity extends Activity {
         Button btnOneShot = findViewById(R.id.btn_one_shot);
         btnOneShot.setOnClickListener(v -> {
             Log.i(TAG, "click FLAG_ONE_SHOT button");
-            int flags = PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE; // 使用 FLAG_UPDATE_CURRENT 方便复用
-            pendingIntent = PendingIntent.getActivity(
-                    this, 1234, intent, flags
-            );
-            if (pendingIntent == null) {
-                Toast.makeText(this, "PendingIntent 为空", Toast.LENGTH_SHORT).show();
-                Log.i(TAG, "pendingIntent == null");
-                return;
+            if (pendingIntent != null) {
+                int flags = PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE;
+                pendingIntent = PendingIntent.getActivity(
+                        this, 1234, intent, flags
+                );
+            } else {
+                int flags = PendingIntent.FLAG_UPDATE_CURRENT;    // 非空，复用
+                pendingIntent = PendingIntent.getActivity(
+                        this, 1234, intent, flags
+                );
             }
             try {
                 pendingIntent.send();
@@ -47,6 +49,7 @@ public class MainActivity extends Activity {
         // 2. 创建 PendingIntent，先取消，再发送
         Button triggerButton = findViewById(R.id.btn_trigger);
         triggerButton.setOnClickListener(v -> {
+            Log.i(TAG, "click cancel&send button");
             int flags = PendingIntent.FLAG_IMMUTABLE;
             pendingIntent = PendingIntent.getActivity(this, 6789, intent, flags);
             if (pendingIntent != null) {
@@ -66,15 +69,20 @@ public class MainActivity extends Activity {
         sendButton.setOnClickListener(v -> {
             Log.i(TAG, "click send button");
             if (pendingIntent == null) {   // 空，创建一个新的
-                int flags = PendingIntent.FLAG_IMMUTABLE;
+                Log.i(TAG, "pendingIntent == null, create");
+                int flags = PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT;
+                /*
+                FLAG_UPDATE_CURRENT  复用当前的intent
+                系统判断两个 PendingIntent 是否为 “同一实例” 并决定是否复用，取决于 3 个核心条件（必须全部相同）：
+                相同的上下文（Context）：两次创建使用的 Context 必须是同一个（如都是 this 指向的 Activity）。
+                相同的 requestCode：两次创建的 requestCode 必须完全一致（整数相等）。
+                相同的 Intent 核心结构：通过 Intent.filterEquals() 判断，即 Action、Data、Type、Component、Categories 必须相同（extras 等附加数据不同不影响）。
+                */
                 pendingIntent = PendingIntent.getActivity(
-                        this, 12345, intent, flags
+                        this, 1234, intent, flags
                 );
             } else {
-                int flags = PendingIntent.FLAG_UPDATE_CURRENT;   // 非空，复用当前的
-                pendingIntent = PendingIntent.getActivity(
-                        this, 12345, intent, flags
-                );
+                Log.i(TAG, "pendingIntent != null, reuse");
             }
             if (pendingIntent != null) {
                 try {
@@ -93,14 +101,23 @@ public class MainActivity extends Activity {
         Button cancelButton = findViewById(R.id.btn_cancel);
         cancelButton.setOnClickListener(v -> {
             Log.i(TAG, "click cancel button");
-            int flags = PendingIntent.FLAG_UPDATE_CURRENT;    // 复用示例（action一样，会复用）
-            pendingIntent = PendingIntent.getActivity(
-                    this, 12345, intent, flags
-            );
+            if (pendingIntent == null) {   // 空，创建一个新的
+                Log.i(TAG, "pendingIntent == null, create");
+                int flags = PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT;
+                pendingIntent = PendingIntent.getActivity(
+                        this, 1234, intent, flags
+                );
+            } else {
+                Log.i(TAG, "pendingIntent != null, reuse");
+                int flags = PendingIntent.FLAG_UPDATE_CURRENT;    // 非空，复用
+                pendingIntent = PendingIntent.getActivity(
+                        this, 1234, intent, flags
+                );
+            }
+            Log.i(TAG, "Canceled test");
             if (pendingIntent != null) {
                 pendingIntent.cancel();   // 主动取消 PendingIntent（这会触发系统的 cancel 逻辑）
                 Log.i(TAG, "Canceled sending intent");
-                pendingIntent = null;     // 取消后可以置空，避免重复取消
             } else {
                 Log.i(TAG, "Canceled sending pendingIntent==null");
             }
