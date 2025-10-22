@@ -44,4 +44,4 @@ PS：使用Token进行推送
     git remote set-url origin https://<token>@github.com/W-Fanxing/TestAPK.git
 
 10.22+ 30天内的token
-token: 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
+token_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
